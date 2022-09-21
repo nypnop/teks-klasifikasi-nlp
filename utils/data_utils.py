@@ -10,50 +10,55 @@ class TextClassificationDataset(Dataset):
     NUM_LABELS = 2
     
     def load_dataset(self, path):
-        data = pd.read_csv(path, sep="\t", header=None)
-        data.columns = ["text_a", "label"]
-        data["label"] = data["label"].map(self.LABEL2INDEX)
+        data = pd.read_csv(path)
+        data["label"] = data["label"].apply(lambda x: self.LABEL2INDEX[x])
         return data
 
-    def __init__(self, path, tokenizer, max_len):
+    def __init__(self, path, tokenizer, no_special_tokens=False, *args,**kwargs):
         self.data = self.load_dataset(path)
         self.tokenizer = tokenizer
-        self.max_len = max_len
+        self.no_special_tokens = no_special_tokens
     
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, index):
         row = self.data.iloc[index]
-        text = row["text"]
+        text = row["text_a"]
         label = row["label"]
-        encoding = self.tokenizer.encode_plus(
-            text,
-            add_special_tokens=True,
-            max_length=self.max_len,
-            return_token_type_ids=False,
-            padding="max_length",
-            return_attention_mask=True,
-            return_tensors="pt",
-        )
-        return {
-            "text": text,
-            "input_ids": encoding["input_ids"].flatten(),
-            "attention_mask": encoding["attention_mask"].flatten(),
-            "labels": torch.tensor(label, dtype=torch.long)
-        }
-
-class TextClassificationDataLoader(DataLoader):
-    def __init__(self, path, tokenizer, max_len, batch_size):
-        dataset = TextClassificationDataset(path, tokenizer, max_len)
-        super(TextClassificationDataLoader, self).__init__(dataset, batch_size=batch_size, num_workers=4)
+        
+        subword = self.tokenizer.encode(text, add_special_tokens=not self.no_special_tokens)
+        mask = [1] * len(subword)
+        token_type = [0] * len(subword)
+        return subword, mask, token_type, label
     
-    def collate_fn(self, batch):
-        input_ids = torch.stack([item["input_ids"] for item in batch])
-        attention_mask = torch.stack([item["attention_mask"] for item in batch])
-        labels = torch.stack([item["labels"] for item in batch])
-        return {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-            "labels": labels
-        }
+class TextClassificationDataLoader(DataLoader):
+    def __init__(self, dataset, max_len=512, *args,**kwargs):
+        super(TextClassificationDataLoader, self).__init__(dataset, *args,**kwargs)
+        self.collate_fn = self._collate_fn
+        self.max_len = max_len
+    
+    def _collate_fn(self, batch):
+        batch_size = len(batch)
+        
+        max_len = max([len(x[0]) for x in batch])
+        max_len = min(self.max_len, max_len)
+        
+
+        subword_batch = np.zeros((batch_size, max_len), dtype=np.int64)
+        mask_batch = np.zeros((batch_size, max_len), dtype=np.float32)
+        token_type_batch = np.zeros((batch_size, max_len), dtype=np.int64)
+        label_batch = np.zeros((batch_size), dtype=np.int64)
+        
+        seq_list = []
+        
+        for i, (subword, mask, token_type, label) in enumerate(batch):
+            subword = subword[:max_len]
+            subword_batch[i,:len(subword)] = subword
+            mask_batch[i,:len(subword)] = 1
+            # token_type_batch[i,:max_len] = token_type
+            # label_batch[i] = label
+            
+            # seq_list.append(raw)
+        
+        return subword_batch, mask_batch, token_type_batch, label_batch, seq_list
