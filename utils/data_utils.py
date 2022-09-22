@@ -27,10 +27,9 @@ class TextClassificationDataset(Dataset):
         text = row["text_a"]
         label = row["label"]
         
-        subword = self.tokenizer.encode(text, add_special_tokens=not self.no_special_tokens)
-        mask = [1] * len(subword)
-        token_type = [0] * len(subword)
-        return subword, mask, token_type, label
+        subwords= self.tokenizer.encode(text, add_special_tokens=not self.no_special_tokens)
+        
+        return subwords, label, row['text_a']
     
 class TextClassificationDataLoader(DataLoader):
     def __init__(self, dataset, max_len=512, *args,**kwargs):
@@ -44,21 +43,18 @@ class TextClassificationDataLoader(DataLoader):
         max_len = max([len(x[0]) for x in batch])
         max_len = min(self.max_len, max_len)
         
-
         subword_batch = np.zeros((batch_size, max_len), dtype=np.int64)
         mask_batch = np.zeros((batch_size, max_len), dtype=np.float32)
-        token_type_batch = np.zeros((batch_size, max_len), dtype=np.int64)
-        label_batch = np.zeros((batch_size), dtype=np.int64)
+        label_batch = np.zeros((batch_size,1), dtype=np.int64)
         
         seq_list = []
         
-        for i, (subword, mask, token_type, label) in enumerate(batch):
+        for i, (subword, label, raw) in enumerate(batch):
             subword = subword[:max_len]
             subword_batch[i,:len(subword)] = subword
             mask_batch[i,:len(subword)] = 1
-            # token_type_batch[i,:max_len] = token_type
-            # label_batch[i] = label
+            label_batch[i,0] = label
             
-            # seq_list.append(raw)
+            seq_list.append(raw)
         
-        return subword_batch, mask_batch, token_type_batch, label_batch, seq_list
+        return subword_batch, mask_batch, label_batch, seq_list
