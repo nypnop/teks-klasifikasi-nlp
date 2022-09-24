@@ -18,11 +18,13 @@ or
 pip3 install -r requirements.txt
 ```
 
-If ipynb file open in jupyter notebook then run all cell
+
 If .py run this
 ```
 python3 fasttext-text-classification.py
 or
 python fasttext-text-classification.py
 ```
+
+If ipynb file open in jupyter notebook then run all cell
 
