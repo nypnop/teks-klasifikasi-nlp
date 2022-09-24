@@ -1,0 +1,4 @@
+gensim==4.2.0
+fasttext==0.9.2
+pandas==1.4.3
+nltk==3.7
