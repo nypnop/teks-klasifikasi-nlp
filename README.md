@@ -4,6 +4,9 @@
 13519038 : Ridho Daffasyah (Fine Tuning Bert) <br />
 13519206 : Muhammad Fawwaz Naabigh (Shallow ML)<br />
 
+## Notes
+***For running Fine Tuning BERT, it is recommended to use Google Collab because BERT contains 110 million parameters.***
+
 ## Installation
 
 Clone this repo
