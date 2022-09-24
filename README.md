@@ -1,8 +1,8 @@
 # teks-klasifikasi-nlp
 ## ANGGOTA
-13519046 : Dwianditya Hanif (Deep learning)
-13519038 : Ridho Daffasyah (Fine Tuning Bert)
-13519206 : Muhammad Fawwaz Naabigh (Shallow ML)
+13519046 : Dwianditya Hanif (Deep learning) <br />
+13519038 : Ridho Daffasyah (Fine Tuning Bert) <br />
+13519206 : Muhammad Fawwaz Naabigh (Shallow ML)<br />
 
 ## Installation
 
