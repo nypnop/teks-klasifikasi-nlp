@@ -27,6 +27,13 @@ class TextClassificationDataset(Dataset):
         text = row["text_a"]
         label = row["label"]
         
+        # `encode` will:
+        #   (1) Tokenize the sentence.
+        #   (2) Prepend the `[CLS]` token to the start.
+        #   (3) Append the `[SEP]` token to the end.
+        #   (4) Map tokens to their IDs.
+        #   (5) Pad or truncate the sentence to `max_length`
+        
         subwords= self.tokenizer.encode(text, add_special_tokens=not self.no_special_tokens)
         
         return subwords, label, row['text_a']
