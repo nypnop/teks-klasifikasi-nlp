@@ -20,3 +20,4 @@ if count:
     dic = {'text_a':text_a, 'label':label}
     ps = pd.DataFrame(dic)
     ps.to_csv('train_filtered.csv')
+
