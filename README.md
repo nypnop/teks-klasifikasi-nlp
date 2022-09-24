@@ -17,6 +17,10 @@ pip install -r requirements.txt
 or
 pip3 install -r requirements.txt
 ```
+For tuning bert purpose install this on conda command line
+```
+conda install pytorch=1.11.0 torchvision torchaudio cudatoolkit=11.3 -c pytorch
+```
 
 
 If .py run this
